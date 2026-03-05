@@ -315,3 +315,42 @@ First range is 10.0.0.0 -> 10.255.255.255, total of 16.7m IPs. 1 x Class A Netwo
 Second range 172.16.0.0 -> 172.31.255.255,  16 x Class B Networks. 65k IPs per network. Generally broken into smaller subnetworks.
 
 Third range 192.168.0.0 -> 192.168.255.255. 256 x Class C networks. 256 IPs. Generally used within home and small office networks. 
+
+---
+
+Day 3 (3/5)
+
+Subnetting Pt 2
+
+Subnetting is the process of breaking networks up into smaller pieces.
+
+CIDR (Classless Inter Domain Routing) lets us break down networks. Defines a way of expressing the size of a network, a prefix.
+
+10.16.0.0/16
+
+To split, does it in half, add +1 to /##. so if network is 10.16.0.0/16, you can split into two by doing 10.16.0.0/17. Would then split down the half, 10.16.0.0 -> 10.16.127.255, and then 10.16.128.0 -> 10.16.255.255. You would only add /17 to the main network to signify its been split into two.
+
+---
+
+DNS
+
+Domain Name System (DNS) 
+
+DNS links names (netflix.com) to IP addresses. We ask DNS what the IP is for the site, then connects to their servers. A huge database that converts. 
+
+DNS Zone, a database
+Zonefile, the file storing the zone on disk
+DNS Name Server, NS. A dns server which hosts 1 or more zones, and stores 1 or more zonefiles.
+Authoritative - contains real/genuine records (boss). Can be trusted
+Non-authoritatve/cached - copies of records/zones stored elsewhere to speed things up. 
+
+DNS Root - The boss. A zone like any other part of DNS. This zone is hosted on NameServers. DNS Root zone runs on DNS root servers. Its the point every DNS clients knows about and trusts. Queries start here. 
+
+13 Root server IP addresses which host the root zone. Distributed geographically, managed by independent orgs. ICANN operates one of them, NASA, Univ of Maryland. They manage the Hardware. Root zone is managed by IANA, since its IP. 
+
+Root zone does not store much data. Root zone contains high level information on the top level domains, TLDs. Generic TLD such as .com, or country code like .uk. IANA delegates the management of TLDs to other orgs, known as registries.
+
+Root zone points at the registries. 
+
+Root zone points at the name servers hosting the TLD zones run by the registries which are the orgs who manage these TLDs.
+
