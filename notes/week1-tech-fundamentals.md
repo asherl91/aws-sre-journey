@@ -354,3 +354,46 @@ Root zone points at the registries.
 
 Root zone points at the name servers hosting the TLD zones run by the registries which are the orgs who manage these TLDs.
 
+---
+Day 4 (3/6)
+
+Cloud computing
+
+Cloud computing: five characteristics to be cloud:
+-on demand self service: you can provision capabilities as needed without requiring human interaction
+capabilities = features or products, vm, networking, etc.
+
+-broad network access: capabilities are available over the network and accessed through standard mechanisms
+
+http, https, ssh, rd, vpn
+
+-resource pooling: there is a sense of location independence. no control or knowledge over the exact location of the resources. resources are pooled to serve mutilple consumers using a multi-tenant model
+
+-rapid elasticity: capabilities can be elastically provisioned and released to scale rapidly outward and inward with demand. to the consumer, the capabilities available for provisioning often appear to be unlimited.
+
+-measured service: resource usage can be monitored, controlled, reported and billed
+
+public vs private vs hybrid vs multi cloud
+
+public cloud: cloud environment that is available to the public, aws, azure, google cloud. meet the 5 characteristics above, and are available to the general public
+
+multi-cloud: using multiple cloud environments
+
+private cloud: solution that can be dedicated to your business and ran from business premises. difference between having on-site insfrastructure, vmware, hyperv, etc, and private cloud. 
+
+hybrid cloud uses public and private cloud at the same time.
+
+Cloud service models
+
+Infrastructure stack: when you deploy an application anywhere, it uses an infrastructure stack. collection of things which that application needs all stacked onto each other. going from warehouse/facilities -> infrastructure -> servers - virtualization -> os -> container -> runtime - data - application
+
+parts managed by you, some by vendor
+
+unit of consumption: what you pay for and what you consume. if you procure a virtual server, unit is virtual machine/OS.
+
+IaaS - infrastructure as a service. facilities, infrastructure, servers, and virtualization are handled by the provider. you consume OS and anything above, containers, runtime, data, application. 
+
+Platform as a service, PAAS. aimed for devs that just have an app they want to run and dont want to worry about anything extra. runtime is consumed.
+
+SAAS: software as a service: consume application only. you pay for app, dont worry about anything else. most apps nowadays.
+
