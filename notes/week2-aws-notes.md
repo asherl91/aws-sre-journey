@@ -75,3 +75,73 @@ Shrink instance data usage onto S3 as well
 S3 should be your default thought for any input to AWS or output from AWS. Most services which consume data and or output data can have S3 as an option to take data from or put data to when its finished.
 
 Exam questions: S3 should be default if there's a number of answers of where to put data. 
+
+---
+Week 2 Day 8
+
+Cloud Formation Basics
+
+Cloud Formation is a tool that lets you create, updte, delete infrastructure in AWS in a consistent and repeatable way using templates. So you can create a template and use it again to create infrastructure.
+
+Cloud Formation is written in either YAML or JSON.
+
+Parts of a template for CloudFormation
+
+-Resources:
+All templates have a list of resources, at least one. It's the resources section that tells cloud formation what to do. Resources added, cloudformation creates resources. If updated, CF updates them. If resources are removed, they will be deleted by CF.
+
+Resources is the only mandatory part of a template for CF.
+
+Description:
+free text field where you can add a description. Add details about the template. 
+
+Restriction: if you have both a description and an aws tempmmlate format version, the description needs to follor the template format version. template format version is not mandatory, but if used, next up needs to be description
+
+Template format version: 
+the way that aws allow for extending the standards over time.
+
+Metadata:
+can control the different things in CloudFormation template are presented through the console UI/AWS UI. Forces how the UI presents the template. Also used for other things
+
+Parameters:
+Adds fields that prompt the user for additional info. Size of instance, name of somethjing, how many AZs to use, etc.
+Under parameters:
+-LatestAmiId: 
+--Type, special type. allows us to instead of provide a specific ami id, we can tell it we want latest ami for a given distro.
+
+-SSHandWebLocation: The IP address range that can be used to SSH to the EC2 instances
+
+Mappings:
+allows you to create lookup tables. will be explained later.
+
+Conditions:
+Allow decision making in the template. Set certain things that will only happen if a condition is met. If then essentially. Create the condition under conditions, Use condition under Resources.
+
+Outputs:
+a way that once the template is finished, it can present outputs based on whats being created, updated, or deleted. Kind of a results screen.
+-Examples of Outputs: InstanceId, AZ, PublicDNS, PublicIP.
+-Uses cloudformation functions. example: !ref, references another part of the template. !GetAtt, refers to another thing in the template, but can pick from different data. 
+
+LatestAmiId:
+
+
+How does CloudFormation use templates
+
+Resources section is a list of resources. Resources inside a template are called logical resources. Instance is a logical resource, for creating an EC2 instance.
+Under Instance (Logical Resource):
+Type: AWS::EC2::Instance, telling it what to create
+Properties: used to configure the resources in a certain way
+
+CloudFormation creates a stack from a template. Can create multiple from one template. It is created when CF grabs a template.
+
+For any logical resources, CF makes a corresponding physical resource in your AWS account. So if a resource is an EC2, physical resource is the EC2 instance.
+
+So template creates a stack, then stack creates physical resources. If you update that template, the template will then update the stack and its logical resources, then make necessary changes to the physical resources. Add new ones, update others, delete some. If you remove a resource from a template and use it as an update, it will be removed from stack + physical.
+
+Deleting a stack means logical resources are deleted, which causes CF to delete matching physical resource.
+
+CF lets you automate infrastructure.
+
+Demo:
+
+-When uploading a template, it uploads it to an S3 bucket that it creates automatically. Might create multiple buckets with prefix CF
