@@ -145,3 +145,117 @@ CF lets you automate infrastructure.
 Demo:
 
 -When uploading a template, it uploads it to an S3 bucket that it creates automatically. Might create multiple buckets with prefix CF
+
+---
+
+Week 2 - Day 10 (SKIPPED DAY 9 CAUSE IM BABY)
+
+CloudWatch
+
+Cloudwatch: core product in AWS. Suppport service used by almost all other AWS services for operational management and monitoring.
+
+Cloudwatch collects and manages operational data on your behalf. Operational data: Details how it performs, how it normally runs, or any logging data it generates. 
+
+Three main products in one.
+
+Cloudwatch itself: Collects Metrics, monitors metrics, and performs actions based on metrics
+Metrics: data related to AWS products, apps, or on-premises instances. Disk usage, cpu ultilization, etc.
+
+Cloudwatch is a public service, can be used either within AWS or other cloud platforms. You can also use it from anywhere with permissions.
+
+Some metrics are gathered natively by Cloudwatch. Anything running within AWS can be gathered natively.
+
+Cloudwatch Agent: sometimes needed for some types of metric collection. Collect metrics outside of AWS, other cloud environemtns. Monitoring some things inside products that aren't exposed to AWS needs agent as well. Such as monitoring processes running in an EC2 instance.
+
+Cloudwatch gathers and stores this data, and you can access the data via UI or other means.
+
+Cloudwatch Logs: allows for collection, monitoring, and actions based on Logging data. Could be windows event logs, server logs, mainly anything that is logs.
+
+Agent works the same here.
+
+Cloudwatch events: functions like an event hub. services and schedules. If an AWWS service does something (terminated instance for example), events will generate an event that will perform another action. It can also generate an event to do something at a certain time.
+
+Kind of like cpu-z/task manager stuff + windows event log + scheduler
+
+Cloudwatch manages alot of stuff, so it needs a way to keep things separated.
+
+Namespace: 
+container for monitoring data. 
+Has a name, can be anything, except AWS/:
+All AWS data goes into an AWS namespace which is called AWS/servicename, such as AWS/EC2. This contains all metric data for EC2.
+Namespace contain related metrics.
+
+Metrics: collection of related data points in a time ordered structure. Ex. CPU util, network in/out, disk util. Time ordered: starts when you enable monitoring, finish when you disable it.
+A metric is not for a specific server. CPU utilization is the metric. That metric can be receiving data from multiple ec2 instances.
+
+Datapoints:
+Everytime something reports its metric, the measurement reported is a datapoint. Datapoint in its simplest form consists of two things:
+Timestamp:full date and time
+Value: measurement recorded
+
+Dimensions:
+Dimensions separate datapoints for different things or pesrspectives withing the same metric. Metrics are being sent at the same time, so it includes all metrics for all available points. Dimensions separate that.
+
+AWS sends InstanceID and InstanceType as dimensions
+Namespace AWS/EC2 -> Metric CPU Util -> Dimensions for specific instance ID.
+
+Alarms: Cloudwatch allows us to take actions based on those metrics. Created and linked to a metric. Configure the alarm to take an action based on that metric. If all good, then alarm is ok. But if condition triggered, then alarm goes into alarm status. Action is then triggered. Third state possible: insufficient data. Usual start status until it has enough data to choose OK or Alarm status.
+
+Demo!
+
+---
+Shared Responsibility Model
+:how AWS provide clarity around which areas of systems security are theirs, and which are owned by the customer.
+
+AWS responsible for security OF the cloud
+Customer is responsible for security IN the cloud.
+
+AWS is responsible for managing the security of the AWS regions, AZs, edge locations, the hardware and security of the global infrastructure. Same with Compute, Storage, Database and Networking services AWS provides us. Any software which assists in those services as well is managed.
+
+Customer responsibility:
+Client side data encryption, integrity and authentication, serverside encryption (file system and/or data), networking traffic protection (encryption, integrity, identity)
+OS, network, firewall configuration, applications, paltform, identity and access management, customer data.
+
+---
+High Availability vs Fault Tolerance vs Disaster Recovery
+High Availability: HA
+Fault Tolerance: FT
+Disaster Recovery: DR
+
+HA:
+Aims to ensure an agreed level of operational performance, usually uptime, for a higher than normal period.
+HA isn't aiming to stop failure. outages are still probable.
+An HA system is designed to be online and provide services as often as possible. If fails, its components can be replaced or fixed as quickly as possible often using automation.
+
+Not about user experience. If something fails and disrupts usage for a few seconds, thats okay. Still HA. Maximizes systems online time.
+
+System availability is expressed of percentage of uptime:
+99.9% (three 9s) = 8.77 hours of downtime per year
+99.999% (five 9s)= 5.26 minutes of downtime
+
+FT:
+similar to HA, but more.
+Property that enables a system to continue operating properly in the event of the failure of some (one or more faults within) of its components.
+
+If a system has faults, it should continue to operate properly while its being fixed, without impacting customers.
+
+FT = operate through failure. can be expensive since it is complex to implement.
+
+DR:
+a set of policies,  tools and procedures to enable the recovery or continuation of vital technology infrastructure and systemns following a natural or human induced disaster.
+
+What to plan for and do once disaster occurs which knocks out a system. HA/FT doesn't work, DR comes in. fire/floods, etc.
+Pre-planning -> DR Process
+Pre plan for everything in advance, staffing and physical issues.
+For example, have a standby premises in case of disaster.
+Resilience for local infrastructure, like VM or extra hardware at backup site.
+Regular backups, do not store them at the same site of the system. Backups should be offsite.
+Copies of processes, logins, etc.
+
+Periodic DR testing
+
+HA: minimize outages (user downtime is okay)
+FT: operate thorugh faults
+DR: used when HA/FT don't work, how we recover
+
+AWS helps with all of these.
