@@ -1,3 +1,6 @@
+# Day 1 Maybe?
+
+## Main Model Example Information
 Animals4Life Architecture
 Head office in Brisbane
 On-premise: 192.168.10.0/24
@@ -13,7 +16,7 @@ Major offices consume services from Brisbane, low performance
 
 ---
 
-AWS Basics
+## AWS Basics
 
 AWS account: container for identities (users) and resources.
 Identities: correct way to refer to users
@@ -46,15 +49,17 @@ IAM = Identity Federation and MFA
 
 
 ---
-Day 5 (3/8)
+# Day 5 (3/8)
 
-Public vs Private AWS services
+## Public vs Private AWS services
 
 Public vs Private is referring to networking only. 
 
 Public AWS service is something that is accessed using public end points, like S3.
 
-Prviate runs within a VPC.
+AWS Public Service: located in AWS Public Zone. Anyone can connect, but permissions are required to access the service.
+
+Prviate runs within a VPC. -> Accessible from the VPC it is located in, or other VPCs or On Premises networks as long as private networking is configured.
 
 Permissions still exist.
 
@@ -67,7 +72,7 @@ Services can be placed inside VPCs, like EC2.
 
 Third zone, AWS Public Zone. Runs between public internet and private zone/VPCs. A network connected to the public internet.
 
-AWS Global INfrastructure
+## AWS Global INfrastructure
 
 AWS has created their infrastructure platform to be a collection of individual infrastructure located worldwide. 
 
@@ -98,7 +103,7 @@ or the region name
 
 One region in AUS, code is ap-southeast-2, name is Asia Pacific (Sydney)
 
-Availability Zone, AZ
+## Availability Zone, AZ
 
 Inside every region, aws provide multiiple AZs. Sydney has 3:
 ap-southeast-2a
@@ -122,7 +127,7 @@ AZ resilient services: run from a single AZ. If the AZ fails, the service will f
 
 ---
 
-VPC (Virtual Private Cloud) Basics
+## VPC (Virtual Private Cloud) Basics
 
 VPC is a service you use to create private networks inside AWS that other private services will run from. VPCs are also the service which is used to connect your aws private networks to your on premises networks when creating a hybrid environment. also lets you connect to other cloud platforms when creating a multi cloud deployment. 
 
@@ -170,7 +175,7 @@ security group (sg) and NACL -> security features to limit incoming/outgoing dat
 by default, anything placed in the default vpc subnet is assigned a public ip address.subnets are configured to provide anytyhing that is deployed into those subnets with public ip addresses. specific to default vpc only. any services will have a public ip address.
 
 ---
-Elastic Compute Cloud (EC2) Basics
+## Elastic Compute Cloud (EC2) Basics
 
 deafult compute service within aws
 
@@ -202,22 +207,27 @@ kind of like switching off an appliance.
 
 termination -> one way change. once you do it, non reversible. pretty much deleted.
 
+### AMI
 AMI -> amazon machine image -> in an image of an ec2 instance
 
 ami can be used to create an ec2 instance or create ami from ec2 instance. preset.
 
 ami contains attached permissions, control which accounts can and cant use ami.
 
-ami can be set to public, everyone allowed, anyone can launch instances from that ami.
+ami can be set to:
 
-owner of an ami is implicitly allowed to create ec2 instance from that AMI. 
+public, everyone allowed, anyone can launch instances from that ami.
 
-add explicit permissions to ami where the owner explicitly grants access to that ami for specific aws accounts. private or add other aws accounts or public.
+owner of an ami: owner is implicitly allowed to create ec2 instance from that AMI. 
+
+specific AWS accounts: add explicit permissions to ami where the owner explicitly grants access to that ami for specific aws accounts. private or add other aws accounts or public.
 
 ami handles 2 more things:
 contains the boot/root volume of the instance. C: in windows. drive that boots OS. can contain other volumes too, but at least one, boot volume.
 
 Block device mapping: configuration which links the volumnes that the ami has and how they are presented to the OS. determines which volume is the boot volume, and which is the data volume. os expects to receive volumes and device id. block device mapping links volume to device id.
+
+AMI does not store instance settings or network settings
 
 ec2 instances can run different os. distro of linux, different versions of windows. windows connects with RDP (remote desktop protocol, port: 3389).
 

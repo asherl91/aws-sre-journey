@@ -1,6 +1,6 @@
-Day 1 (3/3)
+# Day 1 (3/3)
 
-OSI Model Intro:
+## OSI Model Intro:
 
 OSI (Open Systems Interconnection) model is a framework that describes the functions and interactions of computer systems in a network. It is divided into seven layers, withe ach layer responsible for specific funcstions in data transmission.
 
@@ -21,7 +21,7 @@ Layer 1: Physical
 
 ---
 
-Layer 1: Physical:
+## Layer 1: Physical:
 
 For example, LAN, connecting two PCs via cable through network cards.
 Physical mediums:
@@ -41,12 +41,13 @@ L1 has no media acess control and no collision detection
 
 ---
 
-Layer 2: Data Link
+## Layer 2: Data Link
 
 Layer 2 network requires a fuinctional layer 1 network to operate. Hihgher layers build on lower layers adding features and capabilities.
 
 Frames are a format for sending information over a layer 2 network. 
 
+### MAC
 MAC Address: unique hardware address for every device on a network. Hexadecimal address, 48 bits long in hex, 24 bits for manufacturer. Frames can be addressed to a destination or broadcast (ALL F'S)
 
 Mac address not software assigned.
@@ -84,9 +85,9 @@ Switches store and forward. They verify during storage and then send to appropri
 
 -----
 
-Day 2 (3/4)
+# Day 2 (3/4)
 
-Layer 3: Network
+## Layer 3: Network/IP
 
 Layer 3 gets data from one location to another.
 
@@ -137,7 +138,7 @@ TTL = hop limit in v6. similar idea.
 
 ---
 
-IP Addressing (v4)
+## IP Addressing (v4)
 
 133.33.3.7 = format is Dotted Decimal Notation
 Four decimal numbers from 0-255, separated by dots. 
@@ -183,7 +184,7 @@ Can possibly be delivered out of order due to the above.
 
 ---
 
-Layer 4, transport layer
+## Layer 4, transport layer Kind of Layer 5 too
 
 Layer 4 and 5 are kind of similar, OSI is conceptual
 
@@ -242,7 +243,7 @@ Stateful firewall: understands communication is both ways, checks both with less
 
 ---
 
-NAT
+## NAT
 
 NAT: Network Address Translation
 
@@ -281,7 +282,7 @@ NAT only works with v4, not v6.
 
 ---
 
-IPv4 Addressing and Subnetting
+## IPv4 Addressing and Subnetting
 
 IPv4 standard created in 1981, RFC791
 
@@ -318,9 +319,9 @@ Third range 192.168.0.0 -> 192.168.255.255. 256 x Class C networks. 256 IPs. Gen
 
 ---
 
-Day 3 (3/5)
+# Day 3 (3/5)
 
-Subnetting Pt 2
+## Subnetting Pt 2
 
 Subnetting is the process of breaking networks up into smaller pieces.
 
@@ -332,7 +333,7 @@ To split, does it in half, add +1 to /##. so if network is 10.16.0.0/16, you can
 
 ---
 
-DNS
+## DNS
 
 Domain Name System (DNS) 
 
@@ -344,6 +345,8 @@ DNS Name Server, NS. A dns server which hosts 1 or more zones, and stores 1 or m
 Authoritative - contains real/genuine records (boss). Can be trusted
 Non-authoritatve/cached - copies of records/zones stored elsewhere to speed things up. 
 
+DNS resolver first
+
 DNS Root - The boss. A zone like any other part of DNS. This zone is hosted on NameServers. DNS Root zone runs on DNS root servers. Its the point every DNS clients knows about and trusts. Queries start here. 
 
 13 Root server IP addresses which host the root zone. Distributed geographically, managed by independent orgs. ICANN operates one of them, NASA, Univ of Maryland. They manage the Hardware. Root zone is managed by IANA, since its IP. 
@@ -354,10 +357,104 @@ Root zone points at the registries.
 
 Root zone points at the name servers hosting the TLD zones run by the registries which are the orgs who manage these TLDs.
 
----
-Day 4 (3/6)
+### 3/14 (UPDATE CAUSE I FORGOT)
 
-Cloud computing
+All layesrs in DNS hierarchy are zones.
+
+Path and hierarchy with example:
+Machine/person wants to go to www.netflix.com, but needs the IP address for it.
+www.Netflix.com is the DNS name.
+Final point: a dns zone for netflix.com that has the answer that I need, a record that links www.netflix.com to the IP address.
+
+DNS helps navigate this process through steps/zones.
+
+Local machine queries for netflix.com
+
+1. First step: check local DNS cache and hosts file of the machine. Hosts file: static mapping of DNS names to IPs, and overrides DNS.
+If the local cache doesn't have the DNS name, next step:
+2. DNS Resolver: Sends to resolver, a DNS server running on a router or within an ISP. Does the query on our behalf. Query is received by resolver and takes it from here. It also has a local cache it checks first. If it finds it in the cache, may return a non-authoritative answer. If no cached entry, next step:
+3. Resolver queries the Root Zone via one of the root servers. Root zone isn't aware of www.netflix.com, but helps us get closer. root zone contains nameserver records which point at the nameservers for the .com TLD. The root zone returns the details of the .com Name Servers to the Resolver. Not what we're looking for, but one step closer. Resolver now has the records for the .com Name Servers. Next step:
+4. Resolver queries the .com TLD name server for www.netflix.com. www.Netflix.com is registered in .com, .com zone contains entries for netflix.com. The .com name servers don't have the answer for the resolver, one step closer. The details of the netflix.com name servers from the .com TLD name server are returned to the resolver. Next step:
+5. Resolver queries the netflix.com name servers for www.netflix.com. These are the final stop, they host the zone and zone file for this domain, and are being pointed at by the .com TLD zone, the result will be authoritative answer back to the resolver. The resolver now caches the result, then returns it to the main machine.
+
+AI Cleaned up version:
+
+Step 0 — User request
+User enters: www.netflix.com
+
+Step 1 — Local lookup
+The machine checks:
+hosts file
+local DNS cache
+
+If not found →
+
+Step 2 — Recursive resolver
+
+Query goes to:
+
+ISP DNS
+home router DNS
+8.8.8.8
+1.1.1.1
+
+Resolver checks its cache.
+
+If not found →
+
+Step 3 — Root servers
+
+Resolver asks a root server:
+
+Where is www.netflix.com?
+
+Root response:
+
+I don't know www.netflix.com
+but ask the .com nameservers
+
+Root returns:
+
+NS records for .com
+Step 4 — TLD servers
+
+Resolver asks the .com servers:
+
+Where is www.netflix.com?
+
+TLD response:
+
+Ask the nameservers for netflix.com
+
+Returns:
+
+NS records for netflix.com
+Step 5 — Authoritative nameserver
+
+Resolver asks the netflix.com authoritative servers:
+
+Where is www.netflix.com?
+
+Authoritative response:
+
+www.netflix.com → 54.x.x.x
+
+This is an authoritative answer.
+
+Step 6 — Response
+
+Resolver:
+
+caches result
+returns IP to client
+
+Client connects to the server.
+
+------
+
+# Day 4 (3/6)
+
+## Cloud computing
 
 Cloud computing: five characteristics to be cloud:
 -on demand self service: you can provision capabilities as needed without requiring human interaction
@@ -383,7 +480,7 @@ private cloud: solution that can be dedicated to your business and ran from busi
 
 hybrid cloud uses public and private cloud at the same time.
 
-Cloud service models
+## Cloud service models
 
 Infrastructure stack: when you deploy an application anywhere, it uses an infrastructure stack. collection of things which that application needs all stacked onto each other. going from warehouse/facilities -> infrastructure -> servers - virtualization -> os -> container -> runtime - data - application
 
