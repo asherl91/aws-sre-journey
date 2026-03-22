@@ -597,3 +597,65 @@ can scale easily
 #### Example 5: Cross account access
 
 Two AWS accounts need to share info, for example, Org 1 users need to access an S3 bucket in Org 2. Org 2 creates role, AWS users in org 1 assume that role, temp creds, then they upload to S3 bucket in org 2. Since role exists in org 2, all things uploaded into bucket are owned by org 2.
+
+# Day 16
+
+## Service Linked Roles
+
+Service Linked Roles: IAM role linked to a specific AWS service. Predefined by a service providing permissions that a service needs to interact with other AWS services on your behalf. Service might create/delete the role or allow you to create the role during the setup or within IAM.
+
+Difference between service linked roles and normal roles: can't delete service linked role until it is no longer required.
+
+Role Seperation: give one group one people the ability to create roles, one group to use roles.
+
+Passing a role: a user can have the ability to pass a role to a service without assuming it in order to give that service permissions to do what it needs to do.
+
+## AWS Organizations
+
+AWS Organizations is a product which allows larger businesses manage multiple AWS accounts in a cost effective way with little to no management overhead. 
+
+Org created by an AWS account. Its not created in the account, just using the acct to create the organization. This account is the Management account (used to be Master account).
+
+Management account can invite other existing AWS accounts into the organization. They'll need to approve the invites to join. Once they join, they'll become part of the org.
+
+Standard accounts: not part of org, just an aws acct.
+Member accounts: aws accounts that are part of an org.
+
+Structure: hierarchichal. top is organization root.
+organizational root: container within an aws org which can contain aws accounts. can be mngmt acct or member accts. can also contain other containers, organizational units (OUs). 
+
+OUs can contain member accts or mgmt account or other OUs
+
+Consolidated billing: member accts do not have their own billing once they join an org. the billing is passed onto the mgmt acct, which is known then as the payer acct.
+
+Orgs make things cheaper due to bulk usage.
+
+Organizations control Service Control Policies (SCPs): they let you restrict what AWS accts within the org can do. 
+
+You can create new member accts directly within an org. 
+
+## Demo!
+
+Made two new accounts, aws2 and dev. switched into them and added them to organization.
+
+## Service Control Policies
+
+Service Control Policies (SCPs): feature of AWS orgs used to restrict AWS accounts. SCP is a JSON policy document, can be attached to the organization as a whole by attaching it to the root container, can be attached to one or more OUs, or attached to individual AWS member accounts. SCP inherit down the org tree. 
+
+Management account is never affected by SCPs.
+
+SCPs are account permissions boundaries. They limit what the AWS account can do, including AWS root user. A root user itself cannot be restricted in general, but SCP restricts the entire AWS account, therefore restricting the root user as well. For example, restricting region switching.
+
+SCP does not grant permissions, only restricts.
+
+SCP can be used in two main ways:
+-Allow list: Block by default, and allow certain services
+-Deny list: allow by default, and block certain services
+
+Default = deny list. When you enable SCPs, AWS applies a default policy which is called Full AWS Access. Applied to org and all OUs within that org. This policy means in the default implementation, SCP has no effect because nothing is restricted. So everything is allowed. Then you add new SCPs to do explicit denies on whatever you would like to deny.
+
+Allow list:
+Remove FulLAWSAccess (deny always wins, so if deny all then allow explicitly, would not work because deny would always win)
+Then you would just add allow SCPs, that would then block everything except the explicit allows
+
+Identity policies and SCP needs to intersect. If identity policy grants permission to something, but SCP does not allow it, then it does not work. It needs to be allowed/not denied by SCP and granted by identity policy for it to fully work.
