@@ -659,3 +659,228 @@ Remove FulLAWSAccess (deny always wins, so if deny all then allow explicitly, wo
 Then you would just add allow SCPs, that would then block everything except the explicit allows
 
 Identity policies and SCP needs to intersect. If identity policy grants permission to something, but SCP does not allow it, then it does not work. It needs to be allowed/not denied by SCP and granted by identity policy for it to fully work.
+
+## Demo!
+
+### Switching Roles
+- You log in as IAM user (Account A)
+- You assume role (Account B)
+- You get temporary credentials
+- You act as the role
+- AWS still knows who originally assumed it
+
+
+## Week 3 Review
+
+1. What is the difference between: IAM User vs IAM Role
+
+IAM user is used for principals logging in. Usually a permanent record of someone's identity in IAM. IAM role is an assumable identity, temporary credentials. They are not assigned to a user. A user temporarily assumes that role and its permissions.  Assume command: sts:AssumeRole
+
+2. Explain: AssumeRole vs PassRole
+Include:
+Who gets permissions
+When each is used
+
+AssumeRole: user becomes the role and gets the permissions determined by the role.  
+Passrole: user lets a service use the role, then the service gets the permissions from that role. 
+
+3. What does this permission allow? And what does it NOT allow?
+iam:PassRole
+
+Allows you to assign a role to a service. Does NOT give you the role’s permissions
+
+4. A role has S3 read access.
+A user:
+does NOT have S3 permissions
+DOES have iam:PassRole for that role
+
+Can the user read S3? Why or why not?
+
+No. Passrole only grants the role to the service, not the user. User cannot read S3 because they did NOT assume the role
+
+5. What is a trust policy? What does it control?
+
+Trust policy is attached to roles only and it controls who/what can assume the role.  sts:AssumeRole
+
+5b. What is a permissions policy?
+
+Permissions policy controls what actions/permissions are allowed. Can be used on users, roles, or groups. Permissions can be either inline or managed.
+
+6. Order of evaluation: Deny vs Allow vs Default
+
+When AWS evaluates a request:
+
+1. If any policy explicitly denies → DENY
+2. If at least one policy allows (and no deny) → ALLOW
+3. Otherwise → DENY (default deny)
+
+6b. How do Service Control Policies (SCPs) work, including the difference between allow-list and deny-list strategies, and the role of the default FullAWSAccess policy?
+
+SCPs define the maximum allowed permissions for an account and do not grant access themselves. By default, AWS applies the FullAWSAccess policy, which allows all actions and imposes no restrictions. 
+
+With a deny-list strategy, FullAWSAccess is kept and specific actions are explicitly denied. With an allow-list strategy, FullAWSAccess is removed and only specific actions are allowed, with everything else implicitly denied.
+
+Final permissions are determined by the intersection of IAM permissions and SCP boundaries, with explicit deny overriding all.
+
+7. You have:
+IAM policy: Allow s3:GetObject
+SCP: Deny s3:GetObject
+Final result?
+
+Deny, deny always wins.
+
+8. You have:
+IAM policy: Allow ec2:*
+SCP: Allow s3:*
+Can the user launch EC2?
+
+NO — EC2 is denied
+Because:
+SCP only allows S3 → EC2 is outside boundary
+
+9. What happens if an action is NOT listed in an SCP?
+
+It depends on how the default is implemented (deny or allow list). If it's deny list, then all would be allowed unless explicitly denied. Allow list would deny all unless explicitly allowed.
+
+10. Why is this bad? Hardcoding access keys on an EC2 instance
+Data leak would be easy since the access key is hardcoded. It would also be bad for maintenance as any changes would need to then be updated.
+
+11. Correct architecture for:
+EC2 needs to access S3
+Explain the flow.
+
+Create an IAM role with a trust policy that allows EC2 to assume it and a permission policy that allows S3 access. Attach the role to the EC2 instance. When the instance starts, it automatically assumes the role via STS, receives temporary credentials, and uses those credentials to access S3 based on the role’s permissions.
+
+Full process:
+
+You need an IAM Role with TWO policies:
+
+1. Trust Policy (WHO can assume the role)
+{
+  "Effect": "Allow",
+  "Principal": { "Service": "ec2.amazonaws.com" },
+  "Action": "sts:AssumeRole"
+}
+
+This means:
+
+EC2 is allowed to assume this role
+
+2. Permission Policy (WHAT the role can do)
+{
+  "Effect": "Allow",
+  "Action": "s3:GetObject",
+  "Resource": "*"
+}
+
+This means:
+
+Whoever assumes the role can read from S3
+
+Flow:
+
+Step 1 — Role is created
+Role:
+- Trust policy → EC2 can assume it
+- Permission policy → allows S3 access
+
+Step 2 — Role is attached to EC2
+When launching EC2:
+User selects the IAM role
+
+This requires:
+iam:PassRole (user permission)
+
+Step 3 — EC2 instance starts
+Behind the scenes:
+EC2 service calls sts:AssumeRole
+AWS checks:
+Does trust policy allow EC2?
+→ YES
+
+Step 4 — Temporary credentials are issued
+STS returns:
+- Access key
+- Secret key
+- Session token
+- Expiration
+
+These are delivered to the instance via:
+Instance Metadata Service (IMDS)
+
+Step 5 — Application on EC2 makes S3 request
+App → S3:GetObject
+(using temporary credentials)
+
+Step 6 — AWS evaluates permissions
+AWS checks:
+Does the ROLE allow s3:GetObject?
+→ YES (permission policy)
+
+Final result
+EC2 successfully accesses S3
+
+12. What permission is required for a user to:
+Launch EC2 with a role attached
+
+ec2:RunInstances
+iam:PassRole
+
+PassRole is the missing piece.
+
+13. What problem does AWS Organizations solve?
+Managing multiple AWS accounts
+
+14. What is an OU?
+OU = organizational unit, similar to a container for AWS accounts. Act like a hierarchical tree. Can have SCPs attached.
+
+15. Do SCPs grant permissions?
+SCPs do NOT grant permissions
+They only limit what IAM can grant
+
+16. What does this SCP do?
+
+{
+  "Effect": "Allow",
+  "Action": "s3:*",
+  "Resource": "*"
+}
+
+Allows all s3 actions as a permission, but does not grant permission
+
+17. What does this SCP do?
+
+{
+  "Effect": "Deny",
+  "Action": "ec2:TerminateInstances",
+  "Resource": "*"
+}
+
+(Assume FullAWSAccess is still attached)
+
+Blocks the ability to terminate an ec2 instance, but all other ec2 permissions are good due to fullawsaccess.
+
+18. Why should you NOT test SCP behavior on the management account?
+SCPs DO apply to management account
+BUT it is typically exempt from many restrictions / special handling
+
+Exam version:
+
+Don’t test SCPs there because behavior differs
+
+19. A developer needs temporary admin access. Correct solution?
+Assume role
+
+20. A Lambda function needs DynamoDB access. Should you use:
+IAM user,  IAM role, IAM group
+
+IAM Role, temporary and uses what it needs. Without role, you would need to hard code keys, which is not secure
+
+21. You want to block ALL services except S3 in an account. Correct SCP approach?
+To allow only S3, remove the default FullAWSAccess SCP and attach an SCP that explicitly allows s3:*.
+
+Because SCPs define the maximum allowed permissions, and no other actions are allowed by the SCP, all non-S3 actions are implicitly denied—even if IAM allows them.
+
+22. User can launch EC2 but cannot attach a role. What permission is missing?
+iam:PassRole
+
