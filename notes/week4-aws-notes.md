@@ -90,3 +90,155 @@ Recap:
 -CT is not real time, there is a delay of about 15 minutes before the activity shows up. Publishes log files multiple times per hour
 
 ## Demo!
+
+# Day 18
+
+## AWS Control Tower
+
+AWS Control Tower: at high level, control tower allows quick and easy setup of multi account environments. AWS does this, but control tower goes further and uses Organizations, along with IAM Identity Center (AWS SSO), CloudFormation, AWS Config, and more.
+
+An evolution of AWS Organizations, adding more features, inteligence and automation.
+
+Landing Zone - multi account environment. AWS Orgs with superpowers. Provides via other AWS services: SSO and ID Federation, centralized logging and auditing (Cloudwatch, Cloudtrail, AWS Config and SNS).
+
+Control Tower provides guard rails - detect/mandate rules/standards across all accounts in the landing zone.
+
+Account Factory: automates and standardizes new account creation.
+
+Dashboard: single page oversigh of the entire organization
+
+When control tower is first set up, it creates 2 OUs: 
+foundational OU, called security by default. 
+Custom OU, called sandbox by default.
+
+### Foundational OU (Security):
+In Foundational OU, Control tower creates 2 AWS accounts, audit account, and log archive account. 
+
+Log archive account is for users that need access to all logging information for all of your enrolled accounts within the Landing Zone. AWS Config and CloudTrail Logs are stored within this account. Need to allow explicit access to this account and it offers a secure read only archive account for logging. 
+
+Audit account is for users that need access to the audit information made available by control tower. Also can be used for any third party tools to perform auditing of your environment. SNS and CloudWatch will be used in this account.
+
+### Account Factory/Custom OU (Sandbox)
+
+Account Factory: similar to a team of robots who are creating/modifying/deleting AWS accounts as business needs. Can be interacted with via Control Tower console or Service Catalog.
+
+Within Custom OU, Account Factory will create AWS accounts in a fully automated way, as many as needed. Config of accts is handled by Account Factory. Baseline templates applied for both account and network. Ensures consistency.
+
+Control tower uses CloudFormation to implement this automation, so expect to see stacks created. 
+
+Control tower also uses AWS Config and SCPs to implement account guardrails.
+
+### Landing Zone
+
+Landing Zone is a feature designed to allow anyone to implement a well architected multi account environment. Has the concept of a home region which is the region that you initially deploy the product into. (US EAST 1). You can explicityly allow/deny usage of other regions, but home region, the one you deploy into, is always available.
+
+Landing Zone is built with AWS Organizations, AWS Config, CloudFormation, and more. Control Tower brings features of lots of AWS products together and orchestrates them. 
+
+Aside from Security and Sandbox OUs, you can create other OUs and accounts.
+
+Landing Zone utilizes the IAM identity center to provide SSO across multiple AWS accounts within the LZ and can also use ID Federation.
+
+LZ provides Monitoring and notifications using cloudwatch and SNS
+
+Can allow end users to provide new AWS accounts within LZ using Service Catalog
+
+### Guard Rails
+
+Guardrails are rules for multi account governance. 
+
+Come in 3 different types:
+
+Mandatory: always applied
+
+Strongly Recommended: strongly recommended by AWS
+
+Elective: implement niche requirements (fully optional)
+
+Guard rails function in two ways:
+
+Preventitive: stop you doing things within your AWS accounts in your landing zone. Implemented using SCPs. These are either enforced or disabled.
+Example: allow/deny regions, disallow bucket policy changes
+
+Detective: Compliance check. Uses AWS config rules and allows you to check that the config of a given thing within an AWS account matches what you define is best practice. 
+
+These are either Clear, In Violation, or Not Enabled
+Example: detective guard rail to check whether CloudTrail is enabled within an AWS account, or whether anyn EC2 instances have public IPv4 addresses associated with those instances.
+
+Distinction: preventitive stop things from occurring, detective only identify those things.
+
+### Account Factory Part 2
+
+Automated Account Provisioning, can be done by cloud admins or end users with appropriate permissions. Guard rails are automatically added to automatically generated AWS accounts.
+
+#### Confused here, a lot of notes
+
+Cantrill: "Account admin given to a named user (IAM Identity Center) Because these accounts can be provisioned by end users, think of these as members of your organization, then either these members of your organization, or anyone that you define can be given admin permissions on an AWS account which is automatically provisioned. This allows you to have a truly self service automatic process for provisioning AWS accounts. So you can allow any member of your organization within tightly controlled parameters to be able to provision accounts for any purpose which you define as okay. and that person will be given admin rights over that aws account. These can be long running accounts or short term accounts."
+
+"If I create a new account, why do I need an admin role?
+Am I creating this account for another user?"
+--Key Clarification
+Creating an AWS account ≠ having access to it
+Account creation is an organizational action
+Access is always granted via roles
+
+--What Account Factory Actually Does
+When you create an account:
+
+1. AWS creates a new account (isolated environment)
+2. Control Tower assigns YOU an admin role in that account
+3. You access it by assuming that role
+
+--Why You Still Need to AssumeRole
+Users exist in IAM Identity Center (central)
+Accounts are separate environments
+
+So:
+You (Identity Center user)
+→ AssumeRole → enter the account
+
+This is always required—Control Tower does not change this.
+
+--Who Is the Account For?
+Most Common Case
+You create the account for YOURSELF (your environment)
+
+Example:
+Dev account
+Sandbox account
+Other Case
+You create the account for a TEAM
+
+Then:
+You assign other users roles into that account
+
+--What “Admin Role” Actually Means
+You are allowed to become admin inside the account
+
+Not:
+
+You permanently exist inside the account
+
+--Important Constraint
+Admin role is still limited by SCPs
+
+So:
+
+Admin ≠ full unrestricted access
+
+--Final Mental Model
+Accounts = environments
+Users = people (in Identity Center)
+Roles = access into environments
+AssumeRole = how you enter
+
+--One-Line Summary
+Account Factory creates environments for you, then gives you a role to access them
+
+Accounts can be long term or short term.
+
+#### Back to Account Factory
+
+Accounts are also configured with standard account and network configuration. If you have any organizational policies for how networking or any account settings are configured, these auto provisioned accounts will come with this configuration. Includes ip addressing used by VPCs.
+
+Account Factory allows accounts to be closed or repurposed, and this whole process can be tightly integrated with the business's SDLC (software development life cycle).
+
