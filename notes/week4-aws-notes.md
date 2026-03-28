@@ -242,3 +242,49 @@ Accounts are also configured with standard account and network configuration. If
 
 Account Factory allows accounts to be closed or repurposed, and this whole process can be tightly integrated with the business's SDLC (software development life cycle).
 
+# Session 3
+
+## S3 Security
+
+### Resource Policies
+
+Resource policies: similar to identity policies, but for buckets.
+
+defines who can access the bucket and what they can do.
+
+Since attached to bucket, easier to allow users from other accounts or anonymous access
+
+Principal = users that can access
+
+User access process:
+-Internal user in same AWS account as bucket: needs Identity Policy mainly, but resource policy must not block it either
+-Anonymous user: only requires bucket policy as there is no identity to apply a policy to
+-External user in other AWS account: needs identity policy within their account to access s3, then bucket policy must allow as well
+
+### ACLs (Access Control Lists)
+
+Access Control Lists (ACLs) - not as often used anymore, can be attached to buckets or objects
+
+Limited usage, very strict. Considered legacy but good to know in general. Read/write permissions, read/write ACL permissions, full control 
+
+### Block Public Access
+
+Block Public Access: setting for buckets, additional security point for accidental misuse of public access policies. Can assist with blocking public access, overriding current policies if needed as an extra security layer.
+
+### Exam Power Ups
+Identity: Controling Different Resources
+Identity: You have a preference for IAM
+Identity: Same account
+Bucket: just controlling s3
+Bucket: anonymous or cross account
+ACLS: never
+
+## S3 Static Hosting
+Host a static website that assist with data storage/displaying
+S3 static hosting = serving files over HTTP (no compute)
+Requires public access (via bucket policy)
+Good for large amounts of data to offload from EC2 instance, as compute would be more complicated/expensive
+Hosting static data on S3 + adding static website helps
+Bucket name must match domain name (for clean hosting)
+Also works for out of band pages, like status page.
+All actions related to storing, retrieving, receiving, requesting, and putting data has costs.
